@@ -33,9 +33,9 @@ st.markdown(
 # Rest of your app content
 st.title("🛡️ Legal Fact Checker")
 st.write(
-    "Welkom collega! Deze tool helpt je te beoordelen of je de output van een AI-tool "
-    "veilig kunt gebruiken voor commerciële doeleinden. Plak eenvoudig een juridische tekst, "
-    "of upload een bestand zoals een privacy policy, en krijg direct advies!"
+    "Welcome, colleague! This tool helps you assess whether you can safely use the output  "
+    "of an AI tool for commercial purposes. Simply paste a legal text or upload a file, "
+    "such as a 'terms of use' document, and receive instant advice!"
 )
 
 # Vraag de gebruiker om hun OpenAI API-sleutel.
