@@ -1,9 +1,8 @@
 import streamlit as st
-from openai import OpenAI
+import openai
 from PyPDF2 import PdfReader
 
 # Introductie van de app.
-import streamlit as st
 
 # CSS to adjust padding and ensure the logo is left-aligned at the top
 st.markdown(
@@ -43,8 +42,8 @@ openai_api_key = st.text_input("OpenAI API Key", type="password")
 if not openai_api_key:
     st.info("Voer je OpenAI API-sleutel in om verder te gaan.", icon="🗝️")
 else:
-    # Maak een OpenAI-client aan.
-    client = OpenAI(api_key=openai_api_key)
+    # Stel de API-sleutel in voor de OpenAI-bibliotheek
+    openai.api_key = openai_api_key
 
     # Prompt-template voor juridische analyse.
     prompt_template = """
@@ -86,16 +85,19 @@ else:
         else:
             # Verwerk de juridische tekst met GPT-3.5.
             prompt = prompt_template.format(document=document)
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "system", "content": prompt}],
-                max_tokens=300
-            )
+            try:
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "system", "content": prompt}],
+                    max_tokens=300
+                )
 
-            # Ontvang de response en toon deze in de app.
-            output = response['choices'][0]['message']['content']
-            st.write("**Resultaat van de analyse:**")
-            st.markdown(output)
+                # Ontvang de response en toon deze in de app.
+                output = response['choices'][0]['message']['content']
+                st.write("**Resultaat van de analyse:**")
+                st.markdown(output)
+            except openai.error.OpenAIError as e:
+                st.error(f"Er is een fout opgetreden: {str(e)}")
 
             # Optionele waarschuwing bij grote documenten
             if len(document) > 5000:
