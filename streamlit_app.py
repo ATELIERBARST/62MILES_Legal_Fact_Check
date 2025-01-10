@@ -83,17 +83,18 @@ if st.button("Analyze text"):
         if len(document) > 5000:
             st.warning(
                 "The document exceeds 5000 characters. The analysis might be incomplete or inaccurate. "
-                "Please consider reducing the size for a more accurate result."
+                "Proceeding with the analysis anyway."
             )
 
         try:
             # Prepare and send the request to OpenAI
             prompt = prompt_template.format(document=document)
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=300
-            )
+            with st.spinner("Analyzing..."):
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "user", "content": prompt}],
+                    max_tokens=300
+                )
 
             # Get the response and display it in the app
             output = response['choices'][0]['message']['content']
@@ -101,6 +102,6 @@ if st.button("Analyze text"):
             st.markdown(output)
 
         except openai.error.OpenAIError as e:
-            st.error(f"An error occurred: {str(e)}")
+            st.error(f"An OpenAI error occurred: {str(e)}")
         except Exception as e:
             st.error(f"An unexpected error occurred: {str(e)}")
