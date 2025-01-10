@@ -101,7 +101,5 @@ if st.button("Analyze text"):
             st.write("**Analysis Result:**")
             st.markdown(output)
 
-        except openai.error.OpenAIError as e:
-            st.error(f"An OpenAI error occurred: {str(e)}")
         except Exception as e:
             st.error(f"An unexpected error occurred: {str(e)}")
