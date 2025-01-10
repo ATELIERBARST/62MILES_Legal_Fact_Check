@@ -9,9 +9,20 @@ openai.api_key = st.secrets["OPENAI_API_KEY"]
 st.markdown(
     """
     <style>
-        .main { padding-top: 0px !important; padding-bottom: 0px !important; }
-        .block-container { padding-top: 80px !important; }
-        #logo-container { text-align: left; margin-top: 0px !important; padding: 0px !important; }
+        /* Remove padding from the main container */
+        .main {
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+        }
+        .block-container {
+            padding-top: 80px !important; /* Space below the logo */
+        }
+        /* Logo container styles */
+        #logo-container {
+            text-align: left; /* Left-align the logo */
+            margin-top: 0px !important; /* No margin above the logo */
+            padding: 0px !important; /* Remove padding */
+        }
     </style>
     <div id="logo-container">
         <img src="https://img.freesvglogo.com/upload/r/rT7/62miles.svg.@ERESIZE@.preview.png" alt="62 Miles Logo" style="width: 300px; margin: 0;">
@@ -33,9 +44,12 @@ uploaded_file = st.file_uploader("Upload a legal document (PDF or TXT):", type=[
 document = ""  # Initialize the document variable
 
 if uploaded_file is not None:
+    # Read the content of the uploaded file
     if uploaded_file.name.endswith(".txt"):
+        # For .txt files
         document = uploaded_file.read().decode("utf-8")
     elif uploaded_file.name.endswith(".pdf"):
+        # For PDF files
         pdf_reader = PdfReader(uploaded_file)
         document = ""
         for page in pdf_reader.pages:
@@ -43,15 +57,15 @@ if uploaded_file is not None:
     st.write("**Content of the uploaded document:**")
     st.write(document)
 else:
+    # Allow users to input text manually if no file is uploaded
     document = st.text_area("Or paste the legal text here.")
 
 # Analyze the text/document on button click
 if st.button("Analyze text"):
     if not document.strip():
         st.warning("Please add text or upload a document before clicking 'Analyze text'.")
-    elif len(document) > 5000:
-        st.warning("The document is too large. Please try a shorter text.")
     else:
+        # Define the prompt template in English
         prompt_template = """
         You are a legal expert. Analyze the following text and determine whether the generated output can be used for commercial purposes. Use the following format:
 
@@ -64,18 +78,29 @@ if st.button("Analyze text"):
 
         Text: {document}
         """
+
+        # Check document length and warn the user if it exceeds 5000 characters
+        if len(document) > 5000:
+            st.warning(
+                "The document exceeds 5000 characters. The analysis might be incomplete or inaccurate. "
+                "Please consider reducing the size for a more accurate result."
+            )
+
         try:
-            with st.spinner("Analyzing the text..."):
-                prompt = prompt_template.format(document=document)
-                response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
-                    messages=[{"role": "user", "content": prompt}],
-                    max_tokens=300
-                )
-                output = response['choices'][0]['message']['content']
-                st.write("**Analysis Result:**")
-                st.markdown(output)
+            # Prepare and send the request to OpenAI
+            prompt = prompt_template.format(document=document)
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=300
+            )
+
+            # Get the response and display it in the app
+            output = response['choices'][0]['message']['content']
+            st.write("**Analysis Result:**")
+            st.markdown(output)
+
         except openai.error.OpenAIError as e:
-            st.error(f"An OpenAI API error occurred: {str(e)}")
+            st.error(f"An error occurred: {str(e)}")
         except Exception as e:
             st.error(f"An unexpected error occurred: {str(e)}")
